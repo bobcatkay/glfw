@@ -1206,6 +1206,40 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
     return DefWindowProcW(hWnd, uMsg, wParam, lParam);
 }
 
+
+static PIXELFORMATDESCRIPTOR pfd =
+{
+    sizeof(PIXELFORMATDESCRIPTOR),
+    1,
+    PFD_DRAW_TO_WINDOW |
+    PFD_SUPPORT_OPENGL |
+    PFD_DOUBLEBUFFER,
+    PFD_TYPE_RGBA,
+    16,
+    0, 0, 0, 0, 0, 0,
+    0,
+    0,
+    1,
+    1, 1, 1, 1,
+    16,
+    0,
+    0,
+    PFD_MAIN_PLANE,
+    0,
+    0, 0, 0
+};
+HWND mHWNDBackground = NULL;
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
+{
+    HWND shelldll = FindWindowExA(hwnd, NULL, "SHELLDLL_DefView", NULL);
+
+    if (shelldll != NULL)
+    {
+        HWND listview = FindWindowExA(NULL, hwnd, "WorkerW", NULL);
+        mHWNDBackground = listview;
+    }
+    return TRUE;
+}
 // Creates the GLFW window
 //
 static int createNativeWindow(_GLFWwindow* window,
@@ -1248,16 +1282,41 @@ static int createNativeWindow(_GLFWwindow* window,
     if (!wideTitle)
         return GLFW_FALSE;
 
-    window->win32.handle = CreateWindowExW(exStyle,
-                                           _GLFW_WNDCLASSNAME,
-                                           wideTitle,
-                                           style,
-                                           xpos, ypos,
-                                           fullWidth, fullHeight,
-                                           NULL, // No parent window
-                                           NULL, // No window menu
-                                           GetModuleHandleW(NULL),
-                                           NULL);
+    /********************MODIFIED*********************/
+    if (wndconfig->wallpaper)
+    {
+        PDWORD_PTR res = 0;
+        HWND progman = FindWindow(L"Progman", NULL);
+        SendMessageTimeout(progman,
+            0x52C,
+            NULL,
+            NULL,
+            SMTO_NORMAL,
+            1000,
+            res);
+
+        EnumWindows(&EnumWindowsProc, NULL);
+
+        /*GLint  iPixelFormat;
+        iPixelFormat = ChoosePixelFormat(mHWNDBackground, &pfd);
+        SetPixelFormat(mHWNDBackground, iPixelFormat, &pfd);*/
+        window->win32.handle = mHWNDBackground;
+    }
+    else {
+        window->win32.handle = CreateWindowExW(exStyle,
+            _GLFW_WNDCLASSNAME,
+            wideTitle,
+            style,
+            xpos, ypos,
+            fullWidth, fullHeight,
+            NULL, // No parent window
+            NULL, // No window menu
+            GetModuleHandleW(NULL),
+            NULL);
+
+    }
+
+    /********************MODIFIED*********************/
 
     free(wideTitle);
 

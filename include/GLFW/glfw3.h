@@ -1071,6 +1071,9 @@ extern "C" {
  *  [window hint](@ref GLFW_X11_CLASS_NAME_hint).
  */
 #define GLFW_X11_INSTANCE_NAME      0x00024002
+
+#define GLFW_WINDOWS_WALL_PAPAER    0x00024003
+
 #define GLFW_WIN32_KEYBOARD_MENU    0x00025001
 /*! @} */
 

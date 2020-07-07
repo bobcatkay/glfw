@@ -271,6 +271,7 @@ struct _GLFWwndconfig
     GLFWbool      centerCursor;
     GLFWbool      focusOnShow;
     GLFWbool      scaleToMonitor;
+    GLFWbool      wallpaper;
     struct {
         GLFWbool  retina;
         char      frameName[256];
